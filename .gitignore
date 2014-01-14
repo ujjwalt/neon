@@ -16,3 +16,10 @@ tmp
 .yardoc
 _yardoc
 doc/
+
+#ignore the db
+neo4j
+another_neo4j
+#ignore the downloaded neo4js
+/neo4j-*
+

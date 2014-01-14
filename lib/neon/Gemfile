@@ -1,0 +1,8 @@
+source 'http://rubygems.org'
+ruby 'rbx'
+
+# The API is written in grap
+gem 'grape'
+
+# Use Puma for the web server
+gem 'puma'
