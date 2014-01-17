@@ -235,7 +235,7 @@ node.rel(:incoming, type: [:RELATIONSHIP_TYPE, :ANOTHER_RELATIONSHIP_TYPE])
 
 # Check if a node has a particular relationship
 node.rel? # Any relationships?
-node.rel?(dir: :incoming) or node.rel?(:outgoing) # Any incoming or outgoing relationships
+node.rel?(dir: :incoming) or node.rel?(dir: :outgoing) # Any incoming or outgoing relationships
 node.rel?(type: :RELATIONSHIP_TYPE) # => true or false
 node.rel?(dir: :incoming, type: :RELATIONSHIP_TYPE) # => true or false
 
