@@ -2,7 +2,7 @@ Neon
 ====
 
 # About
-Neon is fast, minimal ruby binding for the neo4j. It provides a simple api to manipulate a Neo4J database instance hosted on a server or running as an embedded instance.
+Neon is fast, minimal ruby binding for neo4j. It provides a simple api to manipulate a Neo4J database instance hosted on a server or running as an embedded instance.
 
 # Usage
 ## Creating Sessions
@@ -36,11 +36,11 @@ session = Neon::Session::Rest.new("http://username:password@localhost:7474/mydir
 
 ### Embedded session
 ```ruby
-session = Neon::Session::Embedded.new(path_to_db, auto_tx, impermanent)
+session = Neon::Session::Embedded.new(path_to_db, auto_tx)
 ```
 
 * `path_to_db` is the path to the embedded database instance. You can use a symbol `:impermanent` to create an impermanent instance.
-* `auto_tx` is an optional boolean parameter that is true by default.
+* `auto_tx` is an optional boolean parameter that is true by default and used for enabling and disabling auto transactions.
 
 The first session created is the default session used by Neon modules. It can be accessed using the current attribute.
 ```ruby
@@ -57,7 +57,7 @@ Irrespective of the underlying session, you can use a common api there onwards i
 # Creating a session does not start it. You can start the session as follows
 started? = session.start
 
-# Stop a session
+# Close a session
 closed? = session.close
 
 # Check if a session has been started i.e. is it running?
@@ -413,7 +413,7 @@ Neon::Node.delete_index_on(:Person, property1, propert2)
 ```ruby
 # constraint is :unique by default and as not other contraint is supported right now
 # we do not take a contraint argument. This makes our api backwards compatible
-Neon::Node.create_contraint_on(:Person, property1, propert2)
+Neon::Node.create_contraint_on(:Person, property1, property2)
 ```
 
 #### Drop a unique contraint on a label
@@ -430,3 +430,4 @@ unique_ndoe = Neon::Node.uniq(arguments)
 
 ## Traversal
 TODO
+
