@@ -33,12 +33,6 @@ namespace :test do
 
   desc "Run specific validity features"
   namespace :validity do
-    desc "Run validity specs for Session"
-    task :session do
-      success = system('rspec spec/session_spec.rb')
-      abort("Session validity specs failed") unless success
-    end
-
     desc "Run validity specs for nodes"
     task :nodes do
       success = system('rspec spec/node_spec.rb')
@@ -124,7 +118,7 @@ namespace :test do
   end
 
   desc "Run all the Session specs"
-  task session: ['test:validity:session', 'test:rest:session', 'test:embedded:session']
+  task sessions: ['test:rest:session', 'test:embedded:session']
 
   desc "Run all the nodes specs"
   task nodes: ['test:validity:nodes', 'test:rest:nodes', 'test:embedded:nodes']

@@ -30,7 +30,7 @@ module Helpers
           Helpers.start_server_banner("REST")
         end
         Neon::Session.stop if Neon::Session.running?
-        Neon::Session.new :rest
+        Neon::Session::Rest.new
         query = <<-EOQ
         START n = node(*)
         OPTIONAL MATCH n-[r]-()

@@ -1,11 +1,11 @@
 PATH
   remote: .
   specs:
-    neon (3.0.0)
-      httparty
-      json
-      neo4j-cypher
-      neography
+    neon (0.1.0)
+      httparty (~> 0.12)
+      json (~> 1.8)
+      neo4j-cypher (~> 1.0)
+      neography (~> 1.3)
 
 GEM
   remote: https://rubygems.org/
@@ -21,12 +21,11 @@ GEM
       multi_xml (>= 0.5.2)
     httpclient (2.3.4.1)
     json (1.8.1)
-    json (1.8.1-java)
-    multi_json (1.8.2)
+    multi_json (1.8.4)
     multi_xml (0.5.5)
     neo4j-community (2.0.0-java)
     neo4j-cypher (1.0.2)
-    neography (1.3.3)
+    neography (1.3.4)
       httpclient (>= 2.3.3)
       json (>= 1.7.7)
       multi_json (>= 1.3.2)
@@ -54,7 +53,7 @@ DEPENDENCIES
   byebug
   neo4j-community (~> 2.0.0)
   neon!
-  os
-  rake (>= 0.8.7)
+  os (~> 0.9)
+  rake (~> 10.1)
   rspec (~> 2.8)
-  yard
+  yard (~> 0.8)
