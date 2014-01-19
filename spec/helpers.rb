@@ -59,25 +59,9 @@ module Helpers
       def clean_start
         raise "Could not stop the current database: #{Neon::Session.running?}" unless stop
         # Create a new database
-        Neon::Session.new :embedded, test_path
+        Neon::Session::Embedded.new :impermanent
         raise "Could not start embedded database" unless Neon::Session.start
         Helpers.start_server_banner("Embedded")
-        graph_db = Neon::Session.current.database
-        ggo = Java::OrgNeo4jTooling::GlobalGraphOperations.at(graph_db)
-
-        tx = graph_db.begin_tx
-        ggo.all_relationships.each do |rel|
-          rel.delete
-        end
-        tx.success
-        tx.finish
-
-        tx = graph_db.begin_tx
-        ggo.all_nodes.each do |node|
-          node.delete
-        end
-        tx.success
-        tx.close
       end
     end
   end

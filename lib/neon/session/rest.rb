@@ -10,6 +10,16 @@ module Neon
         @neo = Neography::Rest.new url
         @url = url
         @auto_tx = auto_tx
+        Session.current = self
+      end
+
+      def ==(other_session)
+        location == other_session.location
+      end
+
+      # @returns [Boolean] whether this is the current sesion or not
+      def current?
+        self == Session.current
       end
 
       # These methods make no sense for a rest server so we just return true to make our specs happy
@@ -19,6 +29,10 @@ module Neon
 
       alias :stop :start
       alias :running? :start
+
+      def location
+        @url
+      end
 
       def create_node(attributes, labels)
         node = @neo.create_node(attributes)
@@ -46,7 +60,7 @@ module Neon
       end
 
       def to_s
-        @url
+        "Neon Session[#{@url}]"
       end
     end
   end

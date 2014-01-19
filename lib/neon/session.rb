@@ -1,31 +1,21 @@
 require "neon/session/rest"
 require "neon/session/embedded"
-require "neon/session/invalid_session"
+require "neon/session/invalid_session_error"
 
 module Neon
   # A session established with a Neo4J database.
   module Session
     class << self
       attr_accessor :current # The current default session running right now.
-      
-      # Create a new session with the database.
-      #
-      # @param type [:rest, :embedded] the type of session to create. Any other type will raise a InvalidSesionTypeError.
-      # @param args [Array] other args to pass to the session - usually stuff like the address of the database.
-      #
-      # @return [Session] a new session of type *type* and to the database initiated with *args*.
-      def new(type, *args)
-        session = case type
-          when :rest
-            Rest.new(*args)
-          when :embedded
-            Embedded.new(*args)
-          else
-            raise InvalidSessionTypeError.new(type)
-          end
-          # Set the current session unless one already exists
-          @current = session unless @current
-          session
+
+      def current=(new_session)
+        @current = new_session unless running?
+      end
+
+      # @returns [Boolean] whether the new session was set as the new session or not
+      def set_current(new_session)
+        self.current = new_session
+        new_session.current?
       end
 
       # @return [Class] the class of the current session.
@@ -33,7 +23,7 @@ module Neon
         @current.class
       end
 
-      # @return [Boolean] wether the current session is running or not.
+      # @return [Boolean] whether the current session is running or not.
       def running?
         if @current
           @current.running?
@@ -62,6 +52,10 @@ module Neon
         else
           true
         end
+      end
+
+      def location
+        @current.location if @current
       end
     end
   end

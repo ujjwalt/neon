@@ -18,6 +18,20 @@ module Neon
         @db_location = path
         @running = false
         @auto_tx = auto_tx
+        Session.current = self
+      end
+
+      def ==(other_session)
+        location == other_session.location
+      end
+
+      # @returns [Boolean] whether this is the current sesion or not
+      def current?
+        self == Session.current
+      end
+
+      def location
+        @db_location == :impermanent ? :memory : @db_location
       end
 
       # @return [Boolean] wether the session is running or not.
@@ -32,18 +46,22 @@ module Neon
 
       # @return [Boolean] wether the session started successfully.
       def start
-        return false if @started
-        @started = true
-        @db = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new.new_embedded_database(@db_location)
-        @running = true
+        return true if @running
+        if @db_location == :impermanent
+          @db = Java::OrgNeo4jTest::TestGraphDatabaseFactory.new.newImpermanentDatabase()
+        else
+          @db = Java::OrgNeo4jGraphdbFactory::GraphDatabaseFactory.new.newEmbeddedDatabase(@db_location)
+        end
+        @running = !!@db
       end
 
       # @return [Boolean] wether the session stopped successfully.
       def stop
-        return false if @stopped
-        @db.shutdown
-        @running = false
-        @stopped = true
+        if @running
+          @db.shutdown
+          @running = false
+        end
+        true
       end
 
       def begin_tx
@@ -69,7 +87,7 @@ module Neon
       end
 
       def to_s
-        @db_location
+        "Neon Session[#{@db_location}]"
       end
 
       private

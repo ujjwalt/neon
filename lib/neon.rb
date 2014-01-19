@@ -14,6 +14,7 @@ require "neon/transaction/rest"
 if RUBY_PLATFORM == 'java'
   require "java"
   require "neo4j-community"
+  Neo4j::Community.load_test_jars!
   require "neon/node/embedded"
   require "neon/relationship/embedded"
 end
