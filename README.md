@@ -1,6 +1,3 @@
-Neon
-====
-
 # About
 Neon is fast, minimal ruby binding for neo4j. It provides a simple api to manipulate a Neo4J database instance hosted on a server or running as an embedded instance.
 
@@ -81,9 +78,7 @@ session.location
 
 ### Auto Transaction support
 * For REST sessions this has no consequence as auto_tx cannot be disabled. You can though run multiple statements using transactions.
-* For Embedded sessions auto_tx means all graph operations will be automatically
-wrapped inside a transaction which will be committed.
-You can disable auto_tx in which case all operations will need to be wrapped inside a transaction by the developer.
+* For Embedded sessions auto_tx means all graph operations will be automatically wrapped inside a transaction which will be committed. You can disable `auto_tx` in which case all operations will need to be wrapped inside a transaction by the developer.
 
 ```ruby
 session.auto_tx # Defaults to true
@@ -292,7 +287,7 @@ rel.type?(a_type)
 ```
 
 ## Transactions
-Besides support for auto transactions, one can run transaction explicitly. Beginning a transaction turns off auto_tx until the end of the transaction. At the end auto_tx is restored to it's original status. You can run at most one transaction per thread.
+Besides support for auto transactions, one can run transaction explicitly. Beginning a transaction turns off auto_tx until the end of the transaction. At the end `auto_tx` is restored to it's original status. You can run at most one transaction per thread.
 
 ```ruby
 # Begin a transaction. If a transaction is already on then it is returned.
@@ -354,7 +349,7 @@ index = Neon::Node.create_index("User", :exact, :lucene)
 hits = user_index.get(key, value) # hits is an enumerable
 
 # Get a single node if it exists or nil
-node_or_nil = hits.single
+ node_or_nil = hits.single
 
 # Use lucene queries
 hits = user_index.query(key, query)

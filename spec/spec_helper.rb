@@ -3,6 +3,7 @@ require "bundler/setup"
 require "rspec"
 require "neon"
 require "helpers"
+require "byebug" if RUBY_PLATFORM != 'java'
 
 RSpec.configure do |config|
   config.include Helpers

@@ -41,49 +41,6 @@ module Neon
         _raise_doesnt_exist_anymore_error(e)
       end
 
-      # Move to a separate file
-      QUERIES = {
-        :[] => lambda do |node, *keys|
-          query = "START n = node({id})\nWITH "
-          query << keys.map { |key| "n.#{key.to_s.strip} as #{key.to_s.strip}" }.join(", ")
-          query << "\nRETURN "
-          query << keys.map { |key| key.to_s.strip }.join(", ")
-          [query, {id: node.id}]
-        end
-      }
-
-      def query_for(method, *args)
-        # Fetch appropriate query and covert the args to a hash corresponding the query parameters
-        QUERIES[method].call(self, *args)
-      end
-
-      # Move to a seprate file
-      RESULT_PARSER = {
-        :[] => lambda do |result, *keys|
-          parsed_result = []
-          result = result.first
-          columns = result["columns"]
-          data = result["data"].first["row"].dup
-          raise "Corrupted result" if columns.length != keys.length
-          for i in 0...keys.length
-            parsed_result << if keys[i] == columns[i]
-                              data.shift
-                            else
-                              nil
-                            end
-          end
-          if keys.length == 1
-            parsed_result.pop
-          else
-            parsed_result
-          end
-        end
-      }
-
-      def parse_result(result, method, *args)
-        RESULT_PARSER[method].call(result, *args)
-      end
-
       private
         def _get_properties(*keys)
           @session.neo.get_node_properties(@node, *keys)

@@ -20,10 +20,8 @@ module Neon
 
       def close
         if success?
-          # puts "Commited tx"
           @session.neo.commit_transaction @tx
         else
-          # puts "Rollabcked tx"
           @session.neo.rollback_transaction @tx
         end
         id = self.class.id_mapper(@session)

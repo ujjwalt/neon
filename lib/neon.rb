@@ -1,4 +1,5 @@
 require "helpers/argument_helpers"
+require "neon/queries"
 require "helpers/transaction_helpers"
 require "neon/session"
 require "neon/property_container"

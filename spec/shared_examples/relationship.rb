@@ -4,9 +4,9 @@ module Neon
     let (:another_session) do
       another_session = case api
       when :embedded
-        Session.new(:embedded, Helpers::Embedded.test_path+'_another')
+        Session::Embedded.new Helpers::Embedded.test_path
       when :rest
-        Session.new(:rest, "http://localhost:4747")
+        Session::Rest.new "http://localhost:4747"
       end
       another_session.start
       another_session

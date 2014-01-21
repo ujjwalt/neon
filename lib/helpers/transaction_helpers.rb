@@ -1,17 +1,20 @@
 module Neon
   module TransactionHelpers
     module Rest
-      def  run_rest_transaction(method, *args, &block)
-        if @session.auto_tx
-          yield
+      include Queries
+
+      def run_in_transaction(method, *args, &block)
+        session = @session || self
+        if session.auto_tx
+          yield if block_given?
         else
           # Fetch the query for this method
-          query = query_for method, *args
-          tx = @session.begin_tx
+          query = Queries::query_for method, *args
+          tx = session.begin_tx
           result = tx.run_query query
           tx.success
           tx.close
-          result = parse_result(result, method, *args)
+          result = Queries::Parser::parse_result(result, method, *args)
         end
       end
     end
@@ -26,28 +29,21 @@ module Neon
         # Embedded:
         #   Session: self
         #   Entity: get_graph_database
-        if respond_to?(:get_graph_database)
-          begin
-            tx = get_graph_database.begin_tx
-            result = yield if block_given?
-            tx.success
-            tx.close
-          rescue Exception => e
-            # Roll back the transaction
-            tx.failure
-            tx.close
-            raise e # Let the exception bubble up
-          end
-        else
-          session = @session || self
-          result = if session.auto_tx
-                        r = Transaction.run(session, &block)
-                        r.pop
-                        r = r.pop if r.length == 1
-                        r
-                      else
-                        yield if block_given?
-                      end
+        session = if respond_to?(:get_graph_database)
+                    get_graph_database 
+                  else
+                    session = self
+                  end
+        begin
+          tx = session.begin_tx
+          result = yield if block_given?
+          tx.success
+          tx.close
+        rescue Exception => e
+          # Roll back the transaction
+          tx.failure
+          tx.close
+          raise e # Let the exception bubble up
         end
         result
       end

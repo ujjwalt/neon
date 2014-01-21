@@ -5,12 +5,11 @@ module Neon
       let(:session) { Session.current }
       let (:another_session) do
         another_session = case api
-        when :embedded
-          Session::Embedded.new Helpers::Embedded.test_path
-        when :rest
-          Session::Rest.new "http://localhost:4747"
-        end
-        another_session.start
+                          when :embedded
+                            Session::Embedded.new Helpers::Embedded.test_path
+                          when :rest
+                            Session::Rest.new "http://localhost:4747"
+                          end
         at_exit { another_session.stop }
         another_session
       end
@@ -23,35 +22,34 @@ module Neon
 
       describe "class" do
         it "should be #{described_class}" do
-          expect(Session.class).to eq(described_class)
+          expect(session.class).to eq(described_class)
         end
       end
 
-      # describe "running?" do
-      #   context "has different values in embedded mode" do
-      #     if api == :embedded
-      #       context "before the server has started" do
-      #         it "should be false" do
-      #           expect(another_session.running?).to be_false
-      #         end
-      #       end
+      
+      describe "running?" do
+        context "has different values in embedded mode" do
+          context "before the server has started" do
+            it "should be false" do
+              expect(another_session.running?).to (api == :rest ? be_true : be_false)
+            end
+          end
 
-      #       context "after the server has started" do
-      #         it "should be true" do
-      #           another_session.start
-      #           expect(another_session.running?).to be_true
-      #         end
-      #       end
+          context "after the server has started" do
+            it "should be true" do
+              another_session.start
+              expect(another_session.running?).to be_true
+            end
+          end
 
-      #       context "after the server has stopped" do
-      #         it "should be false" do
-      #           another_session.stop
-      #           expect(another_session.running?).to be_false
-      #         end
-      #       end
-      #     end
-      #   end
-      # end
+          context "after the server has stopped" do
+            it "should be false" do
+              another_session.stop
+              expect(another_session.running?).to (api == :rest ? be_true : be_false)
+            end
+          end
+        end
+      end
 
       describe "location" do
         it "returns the location of the database" do

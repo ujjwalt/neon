@@ -2,7 +2,7 @@ module Neon
   module Session
     # A session to an embedded instance of Neo4J
     class Embedded
-      include TransactionHelpers
+      include TransactionHelpers::Embedded
       # @!attribute
       #   @return [Boolean] Auto Transaction flag. Enabled by default.
       attr_accessor :auto_tx
@@ -75,15 +75,15 @@ module Neon
       # Nodes
       # Create a new node. If auto_tx is true then we begin a new transaction and commit it after the creation
       def create_node(attributes, labels)
-        run_in_transaction { _create_node attributes, labels }
+        run_in_transaction { _create_node(attributes, labels) }
       end
 
       def load(id)
-        run_in_transaction { _load id }
+        run_in_transaction { _load(id) }
       end
 
       def load_rel(id)
-        run_in_transaction { _load_rel id }
+        run_in_transaction { _load_rel(id) }
       end
 
       def to_s

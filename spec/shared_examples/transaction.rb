@@ -11,6 +11,7 @@ module Neon
       describe "begin" do
         it "begins a new transaction" do
           transaction = Transaction.begin
+          do_some_arbitrary_shit
           transaction.success
           transaction.close
           expect(transaction).to be_true

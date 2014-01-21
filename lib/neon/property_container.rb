@@ -14,23 +14,23 @@ module Neon
         @id == other.id && @session == other.session
       end
 
-      # Fetch one or more properties e.g. node[:property, :another_Property]. Non existent keys return nil.
+      # Fetch one or more properties e.g. node[:property, :another_Property]. Non existent properties return nil.
       #
-      # @param keys [Array<String, Symbol>] the properties to return
+      # @param properties [Array<String, Symbol>] the properties to return
       #
       # @return [Array<String>, String] an array of the values of the properties, sorted in the same order they were queried.
-      #   In case only a single property is fetche e.g. node[ :property] it returns a String containing the corresponding value.
-      def [](*keys)
+      #   In case only a single property is fetche e.g. node[:property] it returns a String containing the corresponding value.
+      def [](*properties)
         # Lesson Learnt
         # ==============
         # Don't change what doesn't belong to you
-        keys = keys.map(&:to_s)
-        run_in_transaction(:[], *keys) do
-          properties = props # Fetch all properties as this is more efficient than firing a HTTP request for every key
+        properties = properties.map(&:to_s)
+        run_in_transaction(:[], *properties) do
+          node_properties = props # Fetch all properties as this is more efficient than firing a HTTP request for every property
           result = []
-          keys.each { |k| result << properties[k] }
-          # If a single key was asked then return it's value else return an array of values in the correct order
-          if keys.length == 1
+          properties.each { |k| result << node_properties[k] }
+          # If a single property was asked then return it's value else return an array of values in the correct order
+          if properties.length == 1
             result.first
           else
             result
@@ -40,20 +40,20 @@ module Neon
         _raise_doesnt_exist_anymore_error(e)
       end
 
-      # Set one or more properties e.g. node[:property, :another_property] = 5, "Neo4J". nil keys are ignored.
+      # Set one or more properties e.g. node[:property, :another_property] = 5, "Neo4J". nil properties are ignored.
       #
-      # @param keys [Array<String, Symbol>] the properties to set.
+      # @param properties [Array<String, Symbol>] the properties to set.
       # @param values [Array<Numeric, String, Symbol, Array<Numeric, String, Symbol>>] the value to assign to the properties in the order specified.
       #
       # @return [void]
-      def []=(*keys, values)
+      def []=(*properties, values)
         # Flattent the values to 1 level. This creates an arrray of values in the case only a single value is provided.
         values = [values].flatten(1)
-        keys = keys.map(&:to_s)
-        run_in_transaction(:[]=, *keys, values) do
-          properties = props
-          Hash[keys.zip(values)].each { |k, v| properties[k] = v unless k.nil? }
-          self.props = properties # Reset all the properties - write simple inefficient code until it proves inefficient
+        properties = properties.map(&:to_s)
+        run_in_transaction(:[]=, *properties, values) do
+          node_properties = props
+          Hash[properties.zip(values)].each { |k, v| node_properties[k] = v unless k.nil? }
+          self.props = node_properties # Reset all the properties - write simple inefficient code until it proves inefficient
         end
       rescue NoMethodError => e
         _raise_doesnt_exist_anymore_error(e)
@@ -72,11 +72,11 @@ module Neon
 
       # Reset all properties of the property container.
       #
-      # @param attributes [Hash] a hash of the key-value pairs to set.
+      # @param attributes [Hash] a hash of the property-value pairs to set.
       #
       # @return [void]
       def props=(attributes)
-        attributes.delete_if { |key, value| key.nil? || value.nil? } # Remove keys-value pairs where either is nil
+        attributes.delete_if { |property, value| property.nil? || value.nil? } # Remove properties-value pairs where either is nil
         run_in_transaction(:props=, attributes) do
           _reset_properties(attributes)
           return
@@ -148,26 +148,26 @@ module Neon
         id == other.id
       end
 
-      # Fetch one or more properties e.g. node[:property, :another_Property]. Non existent keys return nil.
+      # Fetch one or more properties e.g. node[:property, :another_Property]. Non existent properties return nil.
       #
-      # @param keys [Array<String, Symbol>] the properties to return
+      # @param properties [Array<String, Symbol>] the properties to return
       #
       # @return [Array<String>, String] an array of the values of the properties, sorted in the same order they were queried.
       #   In case only a single property is fetche e.g. node[ :property] it returns a String containing the corresponding value.
-      def [](*keys)
+      def [](*properties)
         run_in_transaction do
-          keys = _serialize(keys)
+          properties = _serialize(properties)
           result = []
-          keys.each do |k|
-            # Result contains the values for the keys asked or nil if they key does not exist
+          properties.each do |k|
+            # Result contains the values for the properties asked or nil if they property does not exist
             result << if has_property(k)
               get_property(k)
             else
               nil
             end
           end
-          # If a single key was asked then return it's value else return an array of values in the correct order
-          if keys.length == 1
+          # If a single property was asked then return it's value else return an array of values in the correct order
+          if properties.length == 1
             result.first
           else
             result
@@ -175,23 +175,23 @@ module Neon
         end
       end
 
-      # Set one or more properties e.g. node[:property, :another_property] = 5, "Neo4J". nil keys are ignored.
+      # Set one or more properties e.g. node[:property, :another_property] = 5, "Neo4J". nil properties are ignored.
       #
-      # @param keys [Array<String, Symbol>] the properties to set.
+      # @param properties [Array<String, Symbol>] the properties to set.
       # @param values [Array<Numeric, String, Symbol, Array<Numeric, String, Symbol>>] the value to assign to the properties in the order specified.
       #
       # @return [void]
-      def []=(*keys, values)
+      def []=(*properties, values)
         run_in_transaction do
           # Flattent the values to 1 level. This creates an arrray of values in the case only a single value is provided.
           values = [values].flatten(1)
-          attributes = Hash[keys.zip values]
+          attributes = Hash[properties.zip values]
           nil_values = lambda { |_, v| v.nil? } # Resusable lambda
-          keys_to_delete = attributes.select(&nil_values).keys # Get the keys to be removed
-          attributes.delete_if(&nil_values) # Now remove those keys from attributes
-          keys_to_delete.each { |k| remove_property(k) if has_property(k) } # Remove the keys to be deleted if they are valid
+          keys_to_delete = attributes.select(&nil_values).keys # Get the properties to be removed
+          attributes.delete_if(&nil_values) # Now remove those properties from attributes
+          keys_to_delete.each { |k| remove_property(k) if has_property(k) } # Remove the properties to be deleted if they are valid
           attributes = _serialize(attributes)
-          attributes.each { |k, v| set_property(k, v) } # Set key-value pairs for remaining attributes
+          attributes.each { |k, v| set_property(k, v) } # Set property-value pairs for remaining attributes
         end
       end
 
@@ -201,22 +201,22 @@ module Neon
       def props
         run_in_transaction do
           result = {} # Initialize results
-          get_property_keys.each { |key| result[key] = get_property(key) } # Populate the hash with the container's key-value pairs
+          get_property_keys.each { |property| result[property] = get_property(property) } # Populate the hash with the container's property-value pairs
           result # Return the result
         end
       end
 
       # Reset all properties of the property container.
       #
-      # @param attributes [Hash] a hash of the key-value pairs to set.
+      # @param attributes [Hash] a hash of the property-value pairs to set.
       #
       # @return [void]
       def props=(attributes)
         run_in_transaction do
-          attributes.delete_if { |key, value| key.nil? || value.nil? } # Remove keys-value pairs where either is nil before serialization
+          attributes.delete_if { |property, value| property.nil? || value.nil? } # Remove properties-value pairs where either is nil before serialization
           attributes = _serialize(attributes)
-          get_property_keys.each { |key| remove_property(key) } # Remove all properties
-          attributes.each { |key, value| set_property(key, value) } # Set key-value pairs
+          get_property_keys.each { |property| remove_property(property) } # Remove all properties
+          attributes.each { |property, value| set_property(property, value) } # Set property-value pairs
         end
       end
 
@@ -232,7 +232,7 @@ module Neon
       end
 
       private
-        # Serialize keys and values into approiate type for conversion to Java objects
+        # Serialize properties and values into approiate type for conversion to Java objects
         def _serialize(*objects)
           result = objects.map do |obj|
             if obj.is_a?(Hash)
@@ -248,10 +248,10 @@ module Neon
           end
         end
 
-        # Convert all keys to strings and values to an appropriate type
+        # Convert all properties to strings and values to an appropriate type
         def _serialize_hash(hash)
           attributes = {}
-          hash.each { |key, value| attributes[key.to_s] = _appropriate_type_for value }
+          hash.each { |property, value| attributes[property.to_s] = _appropriate_type_for value }
           attributes
         end
 
